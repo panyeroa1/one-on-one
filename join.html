@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="description" content="Join Success Class - Real-time multilingual video classroom"/>
+  <meta name="theme-color" content="#3498db"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Success Class"/>
+  <title>Join Success Class</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    :root{
+      --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--surface3:#282828;--border:#333;--text:#f5f5f5;--text-muted:#888;--accent:#3498db;
+      --accent2:#2980b9;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;--orange:#f97316;--yellow:#eab308;--cyan:#1abc9c
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px}
+    button{cursor:pointer;border:none;background:none;color:inherit;font:inherit}
+    input,select{font:inherit}
+    .join-container{width:100%;max-width:480px;background:var(--surface);border-radius:24px;padding:40px;box-shadow:0 30px 60px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1)}
+    .join-header{text-align:center;margin-bottom:32px}
+    .join-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px}
+    .logo-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--accent),var(--cyan));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px}
+    .join-logo h1{font-size:28px;font-weight:700}
+    .join-subtitle{color:var(--text-muted);font-size:16px;margin-top:8px}
+    .join-form{display:flex;flex-direction:column;gap:20px}
+    .form-group{display:flex;flex-direction:column;gap:8px}
+    .form-group label{font-size:13px;font-weight:600;text-transform:uppercase;color:var(--text-muted);letter-spacing:.5px}
+    .form-group input,.form-group select{width:100%;padding:16px 18px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:15px;transition:border-color .2s}
+    .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent);background:var(--surface3)}
+    .room-input-group{display:flex;gap:8px}
+    .room-prefix{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;font-weight:700;color:var(--accent);font-size:13px;letter-spacing:.5px;display:flex;align-items:center}
+    .room-input-group input{flex:1;letter-spacing:2px;text-transform:uppercase}
+    .device-options{margin-top:24px}
+    .device-options h3{font-size:16px;margin-bottom:16px;color:var(--text-muted);display:flex;align-items:center;gap:8px}
+    .device-options h3 i{color:var(--accent)}
+    .device-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:480px){.device-grid{grid-template-columns:1fr}}
+    .device-card{padding:16px;background:var(--surface2);border-radius:12px;border:1px solid transparent;transition:all .2s;cursor:pointer}
+    .device-card:hover{border-color:var(--accent);background:var(--surface3)}
+    .device-card.active{border-color:var(--accent);background:rgba(52,152,219,0.1)}
+    .device-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .device-card-header i{font-size:18px;color:var(--accent)}
+    .device-card-header h4{font-size:14px;font-weight:600}
+    .device-card p{font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .join-actions{margin-top:32px;display:flex;gap:12px}
+    .btn-primary{flex:1;padding:18px;background:var(--green);color:#000;border-radius:14px;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s}
+    .btn-primary:hover{background:#a1cc4a}
+    .btn-primary:disabled{opacity:0.6;cursor:not-allowed}
+    .btn-secondary{padding:18px 24px;background:var(--surface2);border-radius:14px;font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s}
+    .btn-secondary:hover{background:var(--surface3)}
+    .btn-orbit{padding:12px 20px;background:linear-gradient(135deg,var(--accent),var(--cyan));color:#fff;border-radius:10px;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;width:100%}
+    .btn-orbit:hover{opacity:0.9}
+    .loading-spinner{display:none;width:20px;height:20px;border:3px solid rgba(255,255,255,0.3);border-radius:50%;border-top-color:#fff;animation:spin 1s linear infinite}
+    @keyframes spin{100%{transform:rotate(360deg)}}
+    .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);padding:14px 24px;border-radius:12px;font-size:14px;z-index:2000;display:none;animation:fadeUp .3s}
+    .toast.show{display:block}
+    @keyframes fadeUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    .join-footer{margin-top:32px;text-align:center;color:var(--text-muted);font-size:13px}
+    .quick-rooms{margin-top:24px}
+    .quick-rooms h3{font-size:15px;margin-bottom:12px;color:var(--text-muted)}
+    .room-buttons{display:flex;gap:8px}
+    .room-btn{padding:10px 16px;background:var(--surface2);border-radius:8px;font-size:13px;font-weight:500;transition:background .2s}
+    .room-btn:hover{background:var(--surface3)}
+    .back-btn{position:absolute;top:20px;left:20px;padding:10px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:14px;display:flex;align-items:center;gap:8px}
+    .back-btn:hover{background:var(--surface2)}
+    @media(max-width:480px){.join-container{padding:24px}.join-actions{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+  
+  <div class="join-container">
+    <div class="join-header">
+      <div class="join-logo">
+        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
+        <h1>Success Class</h1>
+      </div>
+      <p class="join-subtitle">Join a real-time multilingual classroom</p>
+    </div>
+    
+    <form class="join-form" id="joinForm">
+      <div class="form-group">
+        <label for="displayName"><i class="fas fa-user"></i> Display Name</label>
+        <input type="text" id="displayName" placeholder="Enter your name" maxlength="50" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="roomId"><i class="fas fa-door-open"></i> Room ID</label>
+        <div class="room-input-group">
+          <span class="room-prefix">CLASS-</span>
+          <input type="text" id="roomId" placeholder="ORBIT (default)" maxlength="6" value="ORBIT" required>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="userLanguage"><i class="fas fa-language"></i> Your Language</label>
+        <select id="userLanguage">
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="zh">Chinese</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+          <option value="ar">Arabic</option>
+          <option value="hi">Hindi</option>
+          <option value="ru">Russian</option>
+        </select>
+      </div>
+      
+      <div class="quick-rooms">
+        <h3>Quick Join Rooms:</h3>
+        <div class="room-buttons">
+          <button type="button" class="room-btn" data-room="ORBIT">ORBIT Demo</button>
+          <button type="button" class="room-btn" data-room="LEARN">LEARN</button>
+          <button type="button" class="room-btn" data-room="TEACH">TEACH</button>
+          <button type="button" class="room-btn" data-room="GROUP">GROUP</button>
+        </div>
+      </div>
+      
+      <div class="device-options">
+        <h3><i class="fas fa-sliders-h"></i> Device Settings</h3>
+        <div class="device-grid">
+          <div class="device-card" id="micCard">
+            <div class="device-card-header">
+              <i class="fas fa-microphone"></i>
+              <h4>Microphone</h4>
+            </div>
+            <p id="micName">Default</p>
+          </div>
+          <div class="device-card" id="cameraCard">
+            <div class="device-card-header">
+              <i class="fas fa-video"></i>
+              <h4>Camera</h4>
+            </div>
+            <p id="cameraName">Default</p>
+          </div>
+        </div>
+      </div>
+      
+      <button type="button" class="btn-orbit" id="btnQuickOrbit">
+        <i class="fas fa-rocket"></i> Quick Join ORBIT Room
+      </button>
+      
+      <div class="join-actions">
+        <button type="submit" class="btn-primary" id="btnJoin">
+          <i class="fas fa-sign-in-alt"></i> Join Classroom
+          <div class="loading-spinner" id="joinSpinner"></div>
+        </button>
+        <button type="button" class="btn-secondary" id="btnTestAudio">
+          <i class="fas fa-volume-up"></i> Test Audio
+        </button>
+      </div>
+    </form>
+    
+    <div class="join-footer">
+      <p>Real-time transcription, translation, and collaboration powered by AI</p>
+    </div>
+  </div>
+  
+  <div class="toast" id="toast"></div>
+
+<script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyDVw2Xt1gf52xXgx4E5TMKf2007AyQwBfQ",
+  authDomain: "impactful-ring-469323-e5.firebaseapp.com",
+  databaseURL: "https://impactful-ring-469323-e5.europe-west1.firebasedatabase.app",
+  projectId: "impactful-ring-469323-e5",
+  storageBucket: "impactful-ring-469323-e5.firebasestorage.app",
+  messagingSenderId: "316842561818",
+  appId: "1:316842561818:web:8e580f90d4c766832c5ca3"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const $ = id => document.getElementById(id);
+
+// State
+let audioDevices = [];
+let videoDevices = [];
+let selectedMic = null;
+let selectedCamera = null;
+let testAudio = null;
+
+function showToast(message, duration = 3000) {
+  const toast = $('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), duration);
+}
+
+// Check authentication
+auth.onAuthStateChanged(async (user) => {
+  if (!user) {
+    // Redirect to auth if not signed in
+    window.location.href = 'auth.html';
+    return;
+  }
+  
+  // Load user data
+  try {
+    const userRef = firebase.database().ref(`/users/${user.uid}`);
+    const snapshot = await userRef.once('value');
+    const userData = snapshot.val();
+    
+    if (userData && userData.name) {
+      $('displayName').value = userData.name;
+    } else if (user.displayName) {
+      $('displayName').value = user.displayName;
+    } else if (user.email) {
+      $('displayName').value = user.email.split('@')[0];
+    }
+    
+    if (userData && userData.language) {
+      $('userLanguage').value = userData.language;
+    }
+  } catch (error) {
+    console.error('Error loading user data:', error);
+  }
+  
+  // Enumerate devices
+  await enumerateDevices();
+});
+
+async function enumerateDevices() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    
+    audioDevices = devices.filter(d => d.kind === 'audioinput');
+    videoDevices = devices.filter(d => d.kind === 'videoinput');
+    
+    // Update UI
+    if (audioDevices.length > 0) {
+      selectedMic = audioDevices[0];
+      $('micName').textContent = selectedMic.label || 'Default Microphone';
+    }
+    
+    if (videoDevices.length > 0) {
+      selectedCamera = videoDevices[0];
+      $('cameraName').textContent = selectedCamera.label || 'Default Camera';
+    }
+    
+  } catch (error) {
+    console.error('Error enumerating devices:', error);
+    showToast('Unable to access device list');
+  }
+}
+
+// Device selection
+$('micCard').addEventListener('click', () => {
+  if (audioDevices.length <= 1) {
+    showToast('Only one microphone available');
+    return;
+  }
+  
+  // Cycle through available mics
+  const currentIndex = audioDevices.findIndex(d => d.deviceId === selectedMic.deviceId);
+  const nextIndex = (currentIndex + 1) % audioDevices.length;
+  selectedMic = audioDevices[nextIndex];
+  $('micName').textContent = selectedMic.label || `Microphone ${nextIndex + 1}`;
+  $('micCard').classList.add('active');
+  setTimeout(() => $('micCard').classList.remove('active'), 300);
+});
+
+$('cameraCard').addEventListener('click', () => {
+  if (videoDevices.length <= 1) {
+    showToast('Only one camera available');
+    return;
+  }
+  
+  // Cycle through available cameras
+  const currentIndex = videoDevices.findIndex(d => d.deviceId === selectedCamera.deviceId);
+  const nextIndex = (currentIndex + 1) % videoDevices.length;
+  selectedCamera = videoDevices[nextIndex];
+  $('cameraName').textContent = selectedCamera.label || `Camera ${nextIndex + 1}`;
+  $('cameraCard').classList.add('active');
+  setTimeout(() => $('cameraCard').classList.remove('active'), 300);
+});
+
+// Test audio function
+$('btnTestAudio').addEventListener('click', async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: selectedMic ? { deviceId: { exact: selectedMic.deviceId } } : true,
+      video: false
+    });
+    
+    if (testAudio) {
+      testAudio.pause();
+      testAudio = null;
+    }
+    
+    // Create a simple test tone
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 440; // A4 note
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+    
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + 0.5);
+    
+    showToast('Test tone playing...');
+    
+    // Stop the media stream
+    stream.getTracks().forEach(track => track.stop());
+    
+  } catch (error) {
+    console.error('Error testing audio:', error);
+    showToast('Unable to test audio. Check permissions.');
+  }
+});
+
+// Quick room buttons
+document.querySelectorAll('.room-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    const room = button.dataset.room;
+    $('roomId').value = room;
+    showToast(`Room set to ${room}`);
+  });
+});
+
+// Quick join ORBIT room
+$('btnQuickOrbit').addEventListener('click', () => {
+  $('roomId').value = 'ORBIT';
+  $('displayName').value = $('displayName').value || 'Guest';
+  joinClassroom();
+});
+
+// Form submission
+$('joinForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  joinClassroom();
+});
+
+async function joinClassroom() {
+  const displayName = $('displayName').value.trim();
+  const roomId = $('roomId').value.trim().toUpperCase();
+  const userLanguage = $('userLanguage').value;
+  
+  if (!displayName) {
+    showToast('Please enter your display name');
+    $('displayName').focus();
+    return;
+  }
+  
+  if (!roomId || roomId.length < 4) {
+    showToast('Please enter a valid room ID (minimum 4 characters)');
+    $('roomId').focus();
+    return;
+  }
+  
+  // Validate room ID format (alphanumeric only)
+  if (!/^[A-Z0-9]{4,6}$/.test(roomId)) {
+    showToast('Room ID must be 4-6 uppercase letters/numbers');
+    $('roomId').focus();
+    return;
+  }
+  
+  // Show loading state
+  $('btnJoin').disabled = true;
+  $('joinSpinner').style.display = 'block';
+  $('btnJoin').innerHTML = '<i class="fas fa-sign-in-alt"></i> Joining...';
+  
+  try {
+    // Save join data to session storage
+    const joinData = {
+      displayName,
+      roomId,
+      userLanguage,
+      micDeviceId: selectedMic ? selectedMic.deviceId : null,
+      camDeviceId: selectedCamera ? selectedCamera.deviceId : null,
+      micEnabled: true,
+      camEnabled: true
+    };
+    
+    sessionStorage.setItem('original_join_data', JSON.stringify(joinData));
+    
+    // Update user profile in Firebase if signed in
+    const user = auth.currentUser;
+    if (user) {
+      const userRef = firebase.database().ref(`/users/${user.uid}`);
+      await userRef.update({
+        name: displayName,
+        language: userLanguage,
+        lastJoined: Date.now()
+      });
+    }
+    
+    // Redirect to main app
+    window.location.href = 'index.html';
+    
+  } catch (error) {
+    console.error('Error joining classroom:', error);
+    showToast('Error joining classroom: ' + error.message);
+    
+    // Reset button state
+    $('btnJoin').disabled = false;
+    $('joinSpinner').style.display = 'none';
+    $('btnJoin').innerHTML = '<i class="fas fa-sign-in-alt"></i> Join Classroom';
+  }
+}
+
+// Check URL parameters for room ID
+const urlParams = new URLSearchParams(window.location.search);
+const roomParam = urlParams.get('room');
+if (roomParam) {
+  $('roomId').value = roomParam.toUpperCase();
+}
+
+// Handle Enter key in room input
+$('roomId').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    joinClassroom();
+  }
+});
+
+// Format room ID input
+$('roomId').addEventListener('input', (e) => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+// Auto-focus display name field
+window.addEventListener('load', () => {
+  if (!$('displayName').value) {
+    $('displayName').focus();
+  }
+});
+</script>
+</body>
+</html>
