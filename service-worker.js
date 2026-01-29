@@ -1,4 +1,4 @@
-const CACHE_NAME = 'success-class-v1';
+const CACHE_NAME = 'Succes-class-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

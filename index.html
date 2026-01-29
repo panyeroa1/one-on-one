@@ -7,11 +7,11 @@
   <meta name="theme-color" content="#6366f1"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="Success Class"/>
+  <meta name="apple-mobile-web-app-title" content="Succes Class"/>
   <link rel="manifest" href="manifest.json"/>
   <link rel="icon" type="image/svg+xml" href="logo.svg"/>
   <link rel="apple-touch-icon" href="icon-192.png"/>
-  <title>Success Class – Real-time Translation Classroom</title>
+  <title>Succes Class – Real-time Translation Classroom</title>
 
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -862,7 +862,7 @@ input,select{font:inherit}
   <div class="app-container" id="appContainer">
     <div class="top-header">
       <div class="header-left">
-        <div class="header-logo"><div class="logo-icon"><i class="fas fa-graduation-cap"></i></div><span>Success Class</span></div>
+        <div class="header-logo"><div class="logo-icon"><i class="fas fa-graduation-cap"></i></div><span>Succes Class</span></div>
         <div class="room-badge"><span class="room-badge-id" id="displayRoomId">XXXXXX</span><span class="room-badge-sep">|</span><i class="fas fa-circle"></i><span id="participantCount">1</span></div>
       </div>
       <div class="header-center"><div class="meeting-timer" id="meetingTimer"><i class="fas fa-circle"></i><span id="timerDisplay">00:00</span></div></div>
@@ -1581,7 +1581,7 @@ async function initRoom(){
     await initStreamVideo();
 
     updateVideoGrid();
-    showToast('Successfully joined ' + currentRoom);
+    showToast('Succesfully joined ' + currentRoom);
   } catch(e) {
     console.error('Room initialization error:', e);
     showToast('Room setup failed: ' + e.message);

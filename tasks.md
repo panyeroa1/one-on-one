@@ -218,7 +218,7 @@ Files actually modified:
 
 How it was tested:
 - HTML/JS structure verification.
-- Verified logic to redirect to `join.html` on success.
+- Verified logic to redirect to `join.html` on Succes.
 
 Test result:
 - PASS

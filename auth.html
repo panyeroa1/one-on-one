@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Success Class - Authentication</title>
+    <title>Succes Class - Authentication</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -386,7 +386,7 @@
             display: none;
         }
         
-        .message.success {
+        .message.Succes {
             background: rgba(16, 185, 129, 0.1);
             color: var(--accent);
             border: 1px solid rgba(16, 185, 129, 0.2);
@@ -484,7 +484,7 @@
         <div class="hero-section">
             <div class="logo">
                 <i class="fas fa-graduation-cap"></i>
-                <span>Success Class</span>
+                <span>Succes Class</span>
             </div>
             
             <div class="hero-content">
@@ -576,7 +576,7 @@
                 <!-- Register Form -->
                 <div class="auth-form" id="register-form">
                     <h2 class="form-title">Create Account</h2>
-                    <p class="form-subtitle">Join Success Class as a teacher or student</p>
+                    <p class="form-subtitle">Join Succes Class as a teacher or student</p>
                     
                     <form id="registerForm">
                         <div class="form-group">
@@ -720,8 +720,8 @@
             messageDiv.textContent = text;
             messageDiv.className = `message ${type}`;
             
-            // Auto hide success messages after 5 seconds
-            if (type === 'success') {
+            // Auto hide Succes messages after 5 seconds
+            if (type === 'Succes') {
                 setTimeout(() => {
                     messageDiv.style.display = 'none';
                 }, 5000);
@@ -812,14 +812,14 @@
                 const userData = snapshot.val();
                 
                 if (userData) {
-                    showMessage(`Welcome back, ${userData.name}!`, 'success');
+                    showMessage(`Welcome back, ${userData.name}!`, 'Succes');
                     
                     // Redirect to main app after 2 seconds
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 2000);
                 } else {
-                    showMessage('Login successful, but user data not found', 'success');
+                    showMessage('Login Succesful, but user data not found', 'Succes');
                     setTimeout(() => {
                         window.location.href = 'index.html';
                     }, 2000);
@@ -910,7 +910,7 @@
                     displayName: name
                 });
                 
-                showMessage(`Account created successfully! Welcome to Success Class, ${name}!`, 'success');
+                showMessage(`Account created Succesfully! Welcome to Succes Class, ${name}!`, 'Succes');
                 
                 // Redirect to main app after 3 seconds
                 setTimeout(() => {
@@ -957,7 +957,7 @@
             
             try {
                 await auth.sendPasswordResetEmail(email);
-                showMessage('Password reset email sent! Check your inbox.', 'success');
+                showMessage('Password reset email sent! Check your inbox.', 'Succes');
                 
                 // Switch back to login after 3 seconds
                 setTimeout(() => {
@@ -1009,9 +1009,9 @@
                     };
                     
                     await userRef.set(userData);
-                    showMessage(`Welcome to Success Class, ${userData.name}!`, 'success');
+                    showMessage(`Welcome to Succes Class, ${userData.name}!`, 'Succes');
                 } else {
-                    showMessage(`Welcome back, ${snapshot.val().name}!`, 'success');
+                    showMessage(`Welcome back, ${snapshot.val().name}!`, 'Succes');
                 }
                 
                 // Redirect to main app after 2 seconds
@@ -1057,7 +1057,7 @@
         });
         
         // Initialize
-        console.log('Success Class Authentication loaded');
+        console.log('Succes Class Authentication loaded');
     </script>
 </body>
 </html>
