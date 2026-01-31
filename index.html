@@ -1,1227 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#008069" />
-  <meta name="description" content="Succes Class | Group SUCCESS — realtime STT + per-sentence translation + Cartesia TTS" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Succes Class" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="application-name" content="Succes Class" />
-  <meta http-equiv="Permissions-Policy" content="microphone=(self), camera=(self), autoplay=(self), fullscreen=(self), speaker-selection=(self), notifications=(self)" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Succes Class | Group SUCCESS</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <link rel="manifest" id="manifest-link" href="manifest.json" />
-  <link rel="icon" href="icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; height: 100vh; margin: 0; overflow: hidden; touch-action: manipulation; }
+        
+        /* Mobile Precision Locks */
+        input, select, button { font-size: 16px !important; touch-action: manipulation; }
+        
+        .chat-bg { background-color: #efeae2; background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png"); background-size: 400px; }
+        
+        @media (max-width: 767px) {
+            #sidebar { position: absolute; width: 100%; height: 100%; z-index: 20; transition: transform 0.3s ease; }
+            #chat-main { position: absolute; width: 100%; height: 100%; z-index: 30; transform: translateX(100%); transition: transform 0.3s ease; }
+            .mobile-chat-open #chat-main { transform: translateX(0); }
+            .mobile-chat-open #sidebar { transform: translateX(-100%); }
+        }
 
-  <title>Succes Class | Group SUCCESS</title>
-
-  <script src="https://cdn.tailwindcss.com "></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css ">
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400 ;500;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; background-color: #f0f2f5; height: 100vh; margin: 0; overflow: hidden; touch-action: manipulation; }
-    input, select, button { font-size: 16px !important; touch-action: manipulation; }
-    .chat-bg { background-color: #efeae2; background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png "); background-size: 400px; }
-    @media (max-width: 767px) {
-      #sidebar { position: absolute; width: 100%; height: 100%; z-index: 20; transition: transform 0.3s ease; }
-      #chat-main { position: absolute; width: 100%; height: 100%; z-index: 30; transform: translateX(100%); transition: transform 0.3s ease; }
-      .mobile-chat-open #chat-main { transform: translateX(0); }
-      .mobile-chat-open #sidebar { transform: translateX(-100%); }
-    }
-    .bubble-shadow { box-shadow: 0 1px 0.5px rgba(0,0,0,0.15); }
-    .emotion-emoji { font-size: 1.25rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1)); }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; }
-    ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(10px);} to { opacity: 1; transform: translateY(0);} }
-    .message-animate { animation: slideIn 0.22s ease forwards; }
-    @keyframes pulse-ring {
-      0% { transform: scale(0.8); opacity: 0.5; }
-      100% { transform: scale(1.3); opacity: 0; }
-    }
-    .tts-active-ring::before {
-      content: '';
-      position: absolute;
-      inset: -4px;
-      border-radius: 50%;
-      border: 2px solid #00a884;
-      animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-    }
-  </style>
-
-  <script id="__manifest" type="application/json">
-  {
-    "name": "Succes Class • Group SUCCESS",
-    "short_name": "SuccesClass",
-    "description": "Group chat with per-sentence STT translation + Cartesia TTS. PWA-ready.",
-    "id": "succes-class-success",
-    "start_url": "./",
-    "scope": "./",
-    "display": "standalone",
-    "display_override": ["standalone", "minimal-ui", "browser"],
-    "background_color": "#f0f2f5",
-    "theme_color": "#008069",
-    "orientation": "portrait-primary",
-    "lang": "en",
-    "categories": ["education", "communication", "productivity"],
-    "prefer_related_applications": false,
-    "icons": [
-      {
-        "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7Wc1cAAAAASUVORK5CYII=",
-        "sizes": "192x192",
-        "type": "image/png",
-        "purpose": "any maskable"
-      }
-    ],
-    "permissions": ["microphone"]
-  }
-  </script>
-
-  <script id="__sw" type="text/plain">
-  const CACHE_NAME = "succes-class-singlefile-v1";
-  const CORE = ["./"];
-  self.addEventListener("install", (e) => {
-    e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
-  });
-  self.addEventListener("activate", (e) => {
-    e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => (k !== CACHE_NAME ? caches.delete(k) : Promise.resolve())))).then(() => self.clients.claim()));
-  });
-  self.addEventListener("fetch", (e) => {
-    const req = e.request;
-    const url = new URL(req.url);
-    if (url.origin !== self.location.origin) return;
-    if (req.mode === "navigate" || (req.headers.get("accept") || "").includes("text/html")) {
-      e.respondWith(fetch(req).then(res => {
-        const copy = res.clone();
-        caches.open(CACHE_NAME).then(c => c.put(req, copy));
-        return res;
-      }).catch(() => caches.match(req).then(c => c || caches.match("./"))));
-      return;
-    }
-    e.respondWith(caches.match(req).then(c => c || fetch(req).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
-      return res;
-    })));
-  });
-  </script>
-
-  <script>
-    (function setInlineManifest() {
-      try {
-        const el = document.getElementById("__manifest");
-        const json = el ? el.textContent.trim() : "";
-        if (!json) return;
-        const href = "data:application/manifest+json," + encodeURIComponent(json);
-        const link = document.getElementById("manifest-link");
-        if (link) link.href = href;
-      } catch {}
-    })();
-
-    (async function registerInlineSW() {
-      if (!("serviceWorker" in navigator)) return;
-      try {
-        const code = document.getElementById("__sw")?.textContent || "";
-        if (!code.trim()) throw new Error("No SW code");
-        const blob = new Blob([code], { type: "text/javascript" });
-        const swUrl = URL.createObjectURL(blob);
-        await navigator.serviceWorker.register(swUrl, { scope: "./" });
-      } catch (e) {
-        try { await navigator.serviceWorker.register("./service-worker.js", { scope: "./" }); } catch {}
-      }
-      try { if (navigator.storage?.persist) await navigator.storage.persist(); } catch {}
-    })();
-  </script>
+        .bubble-shadow { box-shadow: 0 1px 0.5px rgba(0,0,0,0.15); }
+        .emotion-emoji { font-size: 1.2rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1)); }
+    </style>
 </head>
-
 <body class="flex items-center justify-center">
 
-  <!-- TTS AUTOPLAY OVERLAY -->
-  <div id="tts-init-overlay" class="fixed inset-0 z-[150] bg-black/70 backdrop-blur-sm flex items-center justify-center hidden">
-    <div class="bg-white rounded-2xl p-6 w-full max-w-sm text-center mx-4">
-      <i class="fa-solid fa-volume-high text-4xl text-[#008069] mb-3"></i>
-      <h3 class="text-lg font-bold text-gray-800 mb-2">Enable Voice</h3>
-      <p class="text-sm text-gray-600 mb-4">Tap to enable audio playback for incoming messages</p>
-      <button id="tts-init-btn" class="w-full bg-[#00a884] text-white font-bold py-3 rounded-xl">
-        Enable Audio
-      </button>
-    </div>
-  </div>
-
-  <!-- DELETE CONFIRMATION MODAL -->
-  <div id="delete-modal" class="fixed inset-0 z-[110] bg-black/60 flex items-center justify-center p-6 hidden">
-    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
-      <h3 class="text-lg font-bold text-gray-800">Clear Succes Class?</h3>
-      <p class="text-sm text-gray-500 mt-2">Delete all messages in this room? This cannot be undone.</p>
-      <div class="flex justify-end gap-3 mt-6">
-        <button onclick="toggleDeleteModal(false)" class="px-4 py-2 text-sm font-semibold text-gray-400">Cancel</button>
-        <button id="confirm-delete-btn" class="px-4 py-2 text-sm font-semibold bg-red-500 text-white rounded-lg">Delete All</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- VOICE BROWSER MODAL -->
-  <div id="voice-browser-modal" class="fixed inset-0 z-[120] bg-black/80 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
-      <div class="bg-[#008069] p-4 text-white flex justify-between items-center">
-        <h3 class="text-lg font-bold">Available Voices</h3>
-        <button onclick="toggleVoiceBrowser(false)" class="text-white hover:text-gray-200"><i class="fa-solid fa-times"></i></button>
-      </div>
-      <div class="p-4 overflow-y-auto">
-        <div class="mb-4">
-          <input type="text" id="voice-search" placeholder="Search voices..." class="w-full p-2 border rounded-lg">
-        </div>
-        <div id="voice-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- GATEWAY MODAL -->
-  <div id="gateway-modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
-      <div class="bg-[#008069] p-6 text-white text-center">
-        <h2 class="text-xl font-bold italic tracking-tight">Succes Class</h2>
-        <p class="text-xs opacity-80 mt-1 uppercase tracking-widest">Connect to SUCCESS</p>
-      </div>
-
-      <div class="p-6 space-y-4">
-        <div>
-          <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Display Name</label>
-          <input id="user-display-name" type="text" placeholder="Enter name" maxlength="20" class="w-full border-2 border-gray-100 rounded-xl px-4 py-2 focus:border-[#008069] outline-none">
-        </div>
-
-        <div>
-          <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Room Code</label>
-          <input id="room-code" type="text" value="" placeholder="SUCCESS" class="w-full border-2 border-gray-100 rounded-xl px-4 py-2 text-center text-xl font-bold focus:border-[#008069] outline-none uppercase tracking-widest">
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Gender</label>
-            <select id="user-gender" class="w-full border-2 border-gray-100 rounded-lg px-3 py-2 outline-none focus:border-[#008069] bg-white text-sm">
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Language</label>
-            <select id="user-lang" class="w-full border-2 border-gray-100 rounded-lg px-3 py-2 outline-none focus:border-[#008069] bg-white text-sm"></select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Voice (Based on Language & Gender)</label>
-          <select id="user-voice" class="w-full border-2 border-gray-100 rounded-lg px-3 py-2 outline-none focus:border-[#008069] bg-white text-sm">
-            <option value="">Auto-select (paired voice)</option>
-            <option value="browse">🔍 Browse All Voices…</option>
-          </select>
-          <p class="text-xs text-gray-500 mt-1">Auto uses paired voices per language. NL is forced to Flemish voice id.</p>
-        </div>
-
-        <button id="btn-connect" class="w-full bg-[#00a884] text-white font-bold py-4 rounded-xl shadow-lg hover:bg-[#008069] transition-all uppercase tracking-widest mt-2">
-          Enter Group
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MAIN INTERFACE -->
-  <div id="app-container" class="flex h-full w-full max-w-[1600px] bg-white overflow-hidden relative opacity-0 transition-opacity duration-500">
-
-    <aside id="sidebar" class="w-[350px] border-r border-gray-200 bg-white flex flex-col shrink-0">
-      <div class="h-[64px] bg-[#008069] flex items-center justify-between px-4 text-white shrink-0">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-teal-900 flex items-center justify-center font-bold shadow-inner">SC</div>
-          <span class="font-semibold italic">Succes Class</span>
-        </div>
-        <div class="flex gap-4 items-center opacity-70">
-          <button id="logout-btn" title="Logout" class="hover:text-red-400 transition-colors"><i class="fa-solid fa-right-from-bracket"></i></button>
-          <i class="fa-solid fa-message"></i><i class="fa-solid fa-ellipsis-vertical"></i>
-        </div>
-      </div>
-
-      <div id="chat-list" class="flex-1 overflow-y-auto">
-        <div class="flex items-center gap-3 p-3 bg-gray-100 border-b">
-          <div id="sidebar-avatar" class="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg shrink-0">SU</div>
-          <div class="flex-1 overflow-hidden">
-            <h3 id="sidebar-room-name" class="font-semibold text-gray-800 text-sm">SUCCESS</h3>
-            <p class="text-[12px] text-teal-600 font-medium animate-pulse italic truncate">Per-sentence translate + parallel pipeline</p>
-          </div>
-        </div>
-
-        <div class="p-3 border-b">
-          <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Online Users</h4>
-          <div id="online-users" class="space-y-2"></div>
-        </div>
-
-        <div class="p-3 border-b">
-          <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Voice Status</h4>
-          <div class="flex items-center justify-between">
-            <span class="text-sm">TTS Playback</span>
-            <div id="tts-sidebar-status" class="w-3 h-3 rounded-full bg-red-500"></div>
-          </div>
-          <p class="text-xs text-gray-500 mt-1">Your voice: <span id="selected-voice-name">Auto</span></p>
-        </div>
-      </div>
-
-      <div class="p-3 border-t bg-gray-50">
-        <div class="text-center">
-          <p class="text-xs text-gray-500">Connected as: <span id="sidebar-user-name" class="font-semibold">Guest</span></p>
-          <p class="text-[10px] text-gray-400" id="connection-status">Disconnected</p>
-        </div>
-      </div>
-    </aside>
-
-    <main id="chat-main" class="flex-1 flex flex-col bg-[#efeae2] relative shadow-2xl">
-      <header class="bg-[#f0f2f5] h-[64px] flex items-center justify-between px-4 border-b border-gray-200 shrink-0 z-20">
-        <div class="flex items-center gap-3">
-          <button onclick="document.body.classList.remove('mobile-chat-open')" class="md:hidden text-gray-500 p-2 -ml-2"><i class="fa-solid fa-arrow-left"></i></button>
-          <div id="header-avatar" class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold shadow-sm">SU</div>
-          <div>
-            <h2 id="room-header-name" class="font-semibold text-gray-800 text-[15px] leading-tight">SUCCESS</h2>
-            <span id="user-display-meta" class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Connecting...</span>
-          </div>
-        </div>
-        <div class="flex gap-5 items-center">
-          <button onclick="toggleDeleteModal(true)" title="Delete Chat" class="text-gray-400 hover:text-red-500 transition-colors p-2 text-lg"><i class="fa-solid fa-trash-can"></i></button>
-          <button id="tts-toggle-btn" title="Toggle Playback" class="relative text-gray-400 hover:text-[#008069] transition-colors p-2 text-xl">
-            <i id="tts-icon" class="fa-solid fa-volume-xmark"></i>
-          </button>
-          <i class="fa-solid fa-ellipsis-vertical text-gray-500"></i>
-        </div>
-      </header>
-
-      <div id="msg-stream" class="flex-1 overflow-y-auto p-4 md:p-8 chat-bg flex flex-col gap-3"></div>
-
-      <div class="bg-[#f0f2f5] p-2 md:p-3 flex items-center gap-2 border-t border-gray-200 relative z-40">
-        <div class="flex w-full items-center gap-3 bg-white rounded-full px-4 py-2 shadow-sm">
-          <button id="emotion-btn" class="text-gray-400 hover:text-yellow-500 p-1" title="Emotion">
-            <i class="fa-regular fa-face-smile text-xl"></i>
-          </button>
-          <input id="text-input" type="text" placeholder="Type a message" class="flex-1 outline-none text-[15px] bg-transparent">
-          <button id="send-btn" class="hidden text-teal-600 p-1"><i class="fa-solid fa-paper-plane text-xl"></i></button>
-          <button id="mic-btn" class="text-gray-500 p-1"><i class="fa-solid fa-microphone text-xl"></i></button>
-        </div>
-
-        <div id="voice-overlay" class="absolute inset-0 bg-[#f0f2f5] z-50 flex items-center px-4 hidden">
-          <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse mr-3"></div>
-          <span id="timer" class="font-mono text-xs text-gray-500 w-10">00:00</span>
-          <div class="flex-1 h-8 flex items-center overflow-hidden mx-2"><canvas id="viz" height="30" class="w-full"></canvas></div>
-          <button id="cancel-voice" class="p-2 text-gray-400 hover:text-red-500" title="Cancel"><i class="fa-solid fa-trash"></i></button>
-          <button id="stop-voice" class="w-10 h-10 bg-[#00a884] text-white rounded-full flex items-center justify-center shadow-lg transform active:scale-90" title="Send"><i class="fa-solid fa-check"></i></button>
-        </div>
-      </div>
-
-      <div id="emotion-picker" class="absolute bottom-16 left-4 bg-white rounded-xl shadow-2xl p-3 hidden z-50">
-        <div class="grid grid-cols-2 gap-2">
-          <button class="emotion-option p-2 hover:bg-gray-100 rounded-lg text-left" data-emotion="neutral">😐 Neutral</button>
-          <button class="emotion-option p-2 hover:bg-gray-100 rounded-lg text-left" data-emotion="happy">😀 Happy</button>
-          <button class="emotion-option p-2 hover:bg-gray-100 rounded-lg text-left" data-emotion="sad">😢 Sad</button>
-          <button class="emotion-option p-2 hover:bg-gray-100 rounded-lg text-left" data-emotion="angry">😠 Angry</button>
-          <button class="emotion-option p-2 hover:bg-gray-100 rounded-lg text-left" data-emotion="excited">🤩 Excited</button>
-          <button class="emotion-option p-2 hover:bg-gray-100 rounded-lg text-left" data-emotion="content">😊 Content</button>
-          <button class="emotion-option p-2 hover:bg-gray-100 rounded-lg text-left" data-emotion="scared">😨 Scared</button>
-          <button class="emotion-option p-2 hover:bg-gray-100 rounded-lg text-left" data-emotion="apologetic">🙇 Apologetic</button>
-          <button class="emotion-option p-2 hover:bg-gray-100 rounded-lg text-left" data-emotion="curious">🤔 Curious</button>
-          <button class="emotion-option p-2 hover:bg-gray-100 rounded-lg text-left" data-emotion="amazed">😲 Amazed</button>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js ";
-    import {
-      getDatabase, ref, push, set, onChildAdded, onValue, remove, update, onDisconnect
-    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js ";
-    import { createClient, LiveTranscriptionEvents } from "https://cdn.jsdelivr.net/npm/@deepgram/sdk@3/+esm ";
-
-    // =========================================================
-    // CONFIG
-    // =========================================================
-    const CARTESIA_KEY = "sk_car_yWEX9Mp2LwKju8FXyosGhj";
-    const CARTESIA_VERSION = "2025-04-16";
-    const DEEPGRAM_KEY = "11ee938d032ce7c36c6fa82338274be5e4ada847";
-    const FLEMISH_NL_VOICE_ID = "005af375-5aad-4c02-9551-7fc411430542";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyC93B2GgE3HzaWl5gW_mRroobQybaZNFJs",
-      authDomain: "macx-5feca.firebaseapp.com",
-      databaseURL: "https://macx-5feca-default-rtdb.asia-southeast1.firebasedatabase.app ",
-      projectId: "macx-5feca"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // =========================================================
-    // UI REFERENCES
-    // =========================================================
-    const ui = {
-      modal: document.getElementById("gateway-modal"),
-      delModal: document.getElementById("delete-modal"),
-      app: document.getElementById("app-container"),
-      langSelect: document.getElementById("user-lang"),
-      voiceSelect: document.getElementById("user-voice"),
-      msgWin: document.getElementById("msg-stream"),
-      txtIn: document.getElementById("text-input"),
-      sendBtn: document.getElementById("send-btn"),
-      micBtn: document.getElementById("mic-btn"),
-      voiceOver: document.getElementById("voice-overlay"),
-      timer: document.getElementById("timer"),
-      viz: document.getElementById("viz"),
-      ttsBtn: document.getElementById("tts-toggle-btn"),
-      ttsIcon: document.getElementById("tts-icon"),
-      logout: document.getElementById("logout-btn"),
-      emotionPicker: document.getElementById("emotion-picker"),
-      onlineUsers: document.getElementById("online-users"),
-      ttsSidebarStatus: document.getElementById("tts-sidebar-status"),
-      ttsInitOverlay: document.getElementById("tts-init-overlay"),
-      ttsInitBtn: document.getElementById("tts-init-btn")
-    };
-
-    // =========================================================
-    // GLOBAL STATE
-    // =========================================================
-    const SESSION_KEY = "succes_session";
-    let myUserId = `user-${Date.now()}-${Math.floor(Math.random() * 99999)}`;
-    let userData = { name: "", room: "SUCCESS", gender: "Male", language: "nl", voiceId: null, voiceName: "Auto" };
-    let joinTimestamp = null;
-
-    // TTS STATE
-    let audioContext = null;
-    let audioQueue = [];
-    let isPlaying = false;
-    let currentAudio = null;
-    let ttsEnabled = false;
-    let audioInitialized = false;
-    let playbackDeferred = false;
-
-    // STT STATE
-    let isRec = false;
-    let mediaRec = null;
-    let dgSocket = null;
-    let tStart = 0;
-    let tInt = null;
-    let sttDraftRef = null;
-    let sttFullText = "";
-
-    // PRESENCE
-    let userPresenceRef = null;
-    const EMOTIONS = { neutral:"😐", angry:"😠", excited:"🤩", content:"😊", sad:"😢", scared:"😨", happy:"😀", apologetic:"🙇", curious:"🤔", amazed:"😲" };
-    let selectedEmotion = "neutral";
-
-    // VOICE CACHE
-    let CARTESIA_VOICES = [];
-    let VOICE_MAP = {};
-    const VOICES_CACHE_KEY = "cartesia_voices_cache_v2";
-    const VOICES_CACHE_TTL_MS = 1000 * 60 * 60 * 24 * 3;
-
-    // =========================================================
-    // TTS ENGINE - BULLETPROOF IMPLEMENTATION
-    // =========================================================
-    
-    // Initialize audio context (must be called after user interaction)
-    function initAudioContext() {
-      if (audioContext) return;
-      try {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioContext.state === 'suspended') {
-          audioContext.resume();
-        }
-        audioInitialized = true;
-        console.log("[TTS] Audio context initialized");
-      } catch (e) {
-        console.error("[TTS] Failed to init audio context:", e);
-      }
-    }
-
-    // Convert ArrayBuffer to AudioBuffer for gapless playback option
-    async function arrayBufferToAudioBuffer(arrayBuffer) {
-      if (!audioContext) initAudioContext();
-      try {
-        return await audioContext.decodeAudioData(arrayBuffer);
-      } catch (e) {
-        console.error("[TTS] Decode error:", e);
-        return null;
-      }
-    }
-
-    // Core TTS fetch with retry logic
-    async function fetchTTS(text, voiceId, emotion, lang, retries = 3) {
-      const url = "https://api.cartesia.ai/tts/bytes ";
-      
-      // Build SSML with proper Cartesia format
-      const ssml = buildSSML(text, emotion);
-      
-      // Calculate params
-      const speed = emotionToSpeed(emotion);
-      const volume = emotionToVolume(emotion);
-
-      const body = {
-        model_id: "sonic-3-latest",
-        transcript: ssml,
-        voice: { mode: "id", id: voiceId },
-        language: lang,
-        output_format: { container: "wav", encoding: "pcm_f32le", sample_rate: 44100 },
-        generation_config: { 
-          speed: speed,
-          volume: volume,
-          emotion: emotion || "neutral"
-        }
-      };
-
-      for (let i = 0; i < retries; i++) {
-        try {
-          console.log(`[TTS] Fetching (attempt ${i + 1}):`, text.substring(0, 30) + "...");
-          
-          const res = await fetch(url, {
-            method: "POST",
-            headers: {
-              "Cartesia-Version": CARTESIA_VERSION,
-              "X-API-Key": CARTESIA_KEY,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body)
-          });
-
-          if (!res.ok) {
-            const err = await res.text();
-            throw new Error(`HTTP ${res.status}: ${err}`);
-          }
-
-          const blob = await res.blob();
-          if (blob.size === 0) throw new Error("Empty blob");
-          
-          return URL.createObjectURL(blob);
-        } catch (e) {
-          console.error(`[TTS] Attempt ${i + 1} failed:`, e);
-          if (i === retries - 1) throw e;
-          await new Promise(r => setTimeout(r, 800 * (i + 1)));
-        }
-      }
-    }
-
-    // Play audio with autoplay handling
-    function playAudio(url, onEnded, onError) {
-      return new Promise((resolve) => {
-        if (!audioInitialized) {
-          console.warn("[TTS] Audio not initialized, deferring");
-          playbackDeferred = true;
-          onError?.(new Error("Not initialized"));
-          resolve(false);
-          return;
-        }
-
-        const audio = new Audio(url);
-        currentAudio = audio;
-        
-        // Critical: Set to empty string on ended to release resources
-        const cleanup = () => {
-          audio.src = "";
-          currentAudio = null;
-          URL.revokeObjectURL(url);
-        };
-
-        audio.onended = () => {
-          cleanup();
-          onEnded?.();
-          resolve(true);
-        };
-
-        audio.onerror = (e) => {
-          console.error("[TTS] Playback error:", e);
-          cleanup();
-          onError?.(e);
-          resolve(false);
-        };
-
-        // Handle autoplay restrictions
-        const playPromise = audio.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(err => {
-            console.error("[TTS] Play blocked:", err.name);
-            cleanup();
-            
-            if (err.name === "NotAllowedError") {
-              playbackDeferred = true;
-              ttsEnabled = false;
-              updateTTSUI();
-              showTTSInitOverlay();
-            }
-            
-            onError?.(err);
-            resolve(false);
-          });
-        }
-      });
-    }
-
-    // Process queue sequentially
-    async function processQueue() {
-      if (isPlaying || audioQueue.length === 0 || !ttsEnabled) {
-        if (!ttsEnabled && audioQueue.length > 0) {
-          // Clear queue if disabled
-          audioQueue.forEach(item => item.url && URL.revokeObjectURL(item.url));
-          audioQueue = [];
-        }
-        return;
-      }
-
-      isPlaying = true;
-      const item = audioQueue.shift();
-      
-      try {
-        // Fetch if not prefetched
-        if (!item.url) {
-          item.url = await fetchTTS(item.text, item.voiceId, item.emotion, item.lang);
-        }
-        
-        await playAudio(item.url, 
-          () => {
-            isPlaying = false;
-            setTimeout(() => processQueue(), 50); // Small gap between sentences
-          },
-          (err) => {
-            isPlaying = false;
-            processQueue();
-          }
-        );
-      } catch (e) {
-        console.error("[TTS] Process error:", e);
-        isPlaying = false;
-        processQueue();
-      }
-    }
-
-    // Public: Add text to speak
-    function speak(text, gender, emotion, lang, forcedVoiceId = null) {
-      if (!text || !ttsEnabled) return;
-      
-      const voiceId = forcedVoiceId || pickVoiceId(lang, gender);
-      
-      audioQueue.push({
-        text: text,
-        voiceId: voiceId,
-        emotion: emotion || "neutral",
-        lang: lang || userData.language || "en",
-        url: null, // Will be fetched when processed
-        timestamp: Date.now()
-      });
-
-      // Limit queue size to prevent memory issues
-      if (audioQueue.length > 10) {
-        const removed = audioQueue.shift();
-        if (removed.url) URL.revokeObjectURL(removed.url);
-      }
-
-      processQueue();
-    }
-
-    // Immediate speak (for testing)
-    async function speakImmediate(text) {
-      initAudioContext();
-      const voiceId = pickVoiceId(userData.language, userData.gender);
-      try {
-        const url = await fetchTTS(text, voiceId, selectedEmotion, userData.language);
-        await playAudio(url);
-      } catch (e) {
-        console.error("Immediate speak failed:", e);
-      }
-    }
-
-    // =========================================================
-    // HELPERS
-    // =========================================================
-    function escapeHtml(s) {
-      return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
-    }
-
-    function cleanTranscript(t) {
-      return String(t).replace(/\b(uhm|um|ah|huh|er|eh|hm|uh)\b/gi, "").replace(/\s\s+/g, " ").trim();
-    }
-
-    function saveSession() {
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ ...userData, joinTime: joinTimestamp }));
-    }
-
-    function emotionToSpeed(em) {
-      const map = { excited:1.12, happy:1.06, curious:1.03, neutral:1.0, content:0.98, apologetic:0.95, sad:0.92, scared:0.96, angry:1.02, amazed:1.05 };
-      return Math.max(0.5, Math.min(1.5, map[em] ?? 1.0));
-    }
-
-    function emotionToVolume(em) {
-      const map = { excited:1.08, happy:1.03, neutral:1.0, content:0.98, apologetic:0.95, sad:0.92, scared:0.96, angry:1.05, amazed:1.02, curious:1.0 };
-      return Math.max(0.5, Math.min(2.0, map[em] ?? 1.0));
-    }
-
-    function buildSSML(text, emotion) {
-      const safe = text.replace(/&/g, 'and').replace(/[<>]/g, ''); // Simple sanitize for SSML text content
-      const rate = Math.round((emotionToSpeed(emotion) - 1) * 100);
-      const volume = Math.round((emotionToVolume(emotion) - 1) * 100);
-      
-      // Add natural pauses
-      let processed = safe
-        .replace(/\.\.\./g, '<break time="400ms"/>')
-        .replace(/([,;])\s*/g, '$1<break time="150ms"/>')
-        .replace(/([.?!])\s*/g, '$1<break time="300ms"/>');
-      
-      return `<speak><prosody rate="${rate > 0 ? '+' : ''}${rate}%" volume="${volume > 0 ? '+' : ''}${volume}%">${processed}</prosody></speak>`;
-    }
-
-    function pickVoiceId(targetLang, speakerGender) {
-      const L = (targetLang || "en").toLowerCase();
-      if (L === "nl") return FLEMISH_NL_VOICE_ID;
-      
-      const row = VOICE_MAP[L];
-      if (row) {
-        if (speakerGender === "Female" && row.Female) return row.Female;
-        if (row.Male) return row.Male;
-        if (row.Neutral) return row.Neutral;
-      }
-      
-      return speakerGender === "Female" 
-        ? "e07c00bc-4134-4eae-9ea4-1a55fb45746b" 
-        : "5ee9feff-1265-424a-9d7f-8e4d431a12c7";
-    }
-
-    function updateTTSUI() {
-      if (ttsEnabled) {
-        ui.ttsIcon.className = "fa-solid fa-volume-high text-[#008069]";
-        ui.ttsSidebarStatus.className = "w-3 h-3 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]";
-        ui.ttsBtn.classList.add("text-[#008069]");
-      } else {
-        ui.ttsIcon.className = "fa-solid fa-volume-xmark text-gray-400";
-        ui.ttsSidebarStatus.className = "w-3 h-3 rounded-full bg-red-500";
-        ui.ttsBtn.classList.remove("text-[#008069]");
-      }
-    }
-
-    function showTTSInitOverlay() {
-      ui.ttsInitOverlay.classList.remove("hidden");
-    }
-
-    function hideTTSInitOverlay() {
-      ui.ttsInitOverlay.classList.add("hidden");
-    }
-
-    // =========================================================
-    // VOICE LOADING
-    // =========================================================
-    async function loadCartesiaVoices() {
-      try {
-        const cached = localStorage.getItem(VOICES_CACHE_KEY);
-        if (cached) {
-          const obj = JSON.parse(cached);
-          if (obj?.ts && Array.isArray(obj?.voices) && (Date.now() - obj.ts) < VOICES_CACHE_TTL_MS) {
-            CARTESIA_VOICES = obj.voices;
-            VOICE_MAP = buildVoiceMap(CARTESIA_VOICES);
-            return;
-          }
-        }
-      } catch {}
-
-      try {
-        const voices = await fetchCartesiaVoicesAllPages();
-        CARTESIA_VOICES = voices;
-        VOICE_MAP = buildVoiceMap(voices);
-        localStorage.setItem(VOICES_CACHE_KEY, JSON.stringify({ ts: Date.now(), voices }));
-      } catch (e) {
-        console.warn("Voice fetch failed, using fallback");
-        VOICE_MAP = {
-          nl: { Male: FLEMISH_NL_VOICE_ID, Female: FLEMISH_NL_VOICE_ID, Neutral: FLEMISH_NL_VOICE_ID },
-          en: { Male: "5ee9feff-1265-424a-9d7f-8e4d431a12c7", Female: "e07c00bc-4134-4eae-9ea4-1a55fb45746b" }
-        };
-      }
-    }
-
-    async function fetchCartesiaVoicesAllPages() {
-      const all = [];
-      let startingAfter = null;
-      while (true) {
-        const url = new URL("https://api.cartesia.ai/voices ");
-        url.searchParams.set("limit", "100");
-        if (startingAfter) url.searchParams.set("starting_after", startingAfter);
-        
-        const res = await fetch(url.toString(), {
-          headers: { "Authorization": `Bearer ${CARTESIA_KEY}`, "Cartesia-Version": CARTESIA_VERSION }
-        });
-        
-        if (!res.ok) throw new Error(`Cartesia error: ${res.status}`);
-        const json = await res.json();
-        const page = json?.data || [];
-        all.push(...page);
-        
-        if (!json?.has_more || page.length === 0) break;
-        startingAfter = page[page.length - 1]?.id;
-      }
-      return all;
-    }
-
-    function buildVoiceMap(voices) {
-      const map = {};
-      for (const v of voices) {
-        const lang = (v.language || "en").toLowerCase();
-        const g = String(v.gender || "").toLowerCase();
-        if (!map[lang]) map[lang] = { Male: null, Female: null, Neutral: null };
-        
-        if (g.includes("masc") && !map[lang].Male) map[lang].Male = v.id;
-        else if (g.includes("fem") && !map[lang].Female) map[lang].Female = v.id;
-        else if (!map[lang].Neutral) map[lang].Neutral = v.id;
-      }
-      for (const k of Object.keys(map)) {
-        if (!map[k].Male && map[k].Neutral) map[k].Male = map[k].Neutral;
-        if (!map[k].Female && map[k].Neutral) map[k].Female = map[k].Neutral;
-      }
-      return map;
-    }
-
-    // =========================================================
-    // TRANSLATION
-    // =========================================================
-    const limitTranslate = createLimiter(4);
-    const translateCache = new Map();
-
-    function createLimiter(max) {
-      let active = 0;
-      const q = [];
-      const runNext = () => {
-        if (active >= max || q.length === 0) return;
-        active++;
-        const { fn, resolve, reject } = q.shift();
-        fn().then(resolve).catch(reject).finally(() => { active--; runNext(); });
-      };
-      return (fn) => new Promise((resolve, reject) => {
-        q.push({ fn, resolve, reject });
-        runNext();
-      });
-    }
-
-    async function translate(text, from, to) {
-      if (!text || from === to) return text;
-      const key = `${from}|${to}|${text}`;
-      if (translateCache.has(key)) return translateCache.get(key);
-      
-      const out = await limitTranslate(async () => {
-        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl= ${from}&tl=${to}&dt=t&q=${encodeURIComponent(text)}`);
-        const d = await res.json();
-        return d?.[0]?.[0]?.[0] ?? text;
-      });
-      
-      translateCache.set(key, out);
-      return out;
-    }
-
-    // =========================================================
-    // UI UPDATES
-    // =========================================================
-    function updateVoiceSelectOptions(lang, uiGender) {
-      const keep = Array.from(ui.voiceSelect.options).filter(o => (o.value === "" || o.value === "browse"));
-      ui.voiceSelect.innerHTML = "";
-      keep.forEach(o => ui.voiceSelect.appendChild(o));
-
-      const L = (lang || "en").toLowerCase();
-      if (L === "nl") {
-        const forced = document.createElement("option");
-        forced.value = FLEMISH_NL_VOICE_ID; forced.textContent = "Dutch Flemish (forced)"; forced.selected = true;
-        ui.voiceSelect.add(forced);
-      }
-
-      const list = CARTESIA_VOICES.filter(v => (v.language || "en").toLowerCase() === L);
-      const want = uiGender === "Female" ? "feminine" : "masculine";
-      
-      list.forEach(v => {
-        const g = String(v.gender || "").toLowerCase();
-        if (g.includes(want) || g.includes("neutral")) {
-          const opt = document.createElement("option");
-          opt.value = v.id;
-          opt.textContent = v.name || v.id;
-          ui.voiceSelect.add(opt);
-        }
-      });
-    }
-
-    window.toggleVoiceBrowser = (show) => {
-      document.getElementById("voice-browser-modal").classList.toggle("hidden", !show);
-      if (show) populateVoiceBrowser();
-    };
-
-    function populateVoiceBrowser() {
-      const grid = document.getElementById("voice-grid");
-      grid.innerHTML = "";
-      (CARTESIA_VOICES.length ? CARTESIA_VOICES : [{id: FLEMISH_NL_VOICE_ID, name: "Dutch Flemish", language: "nl"}])
-        .forEach(v => {
-          const card = document.createElement("div");
-          card.className = "border rounded-lg p-3 hover:bg-gray-50 cursor-pointer";
-          card.innerHTML = `
-            <div class="flex justify-between items-start">
-              <div>
-                <h4 class="font-semibold">${escapeHtml(v.name)}</h4>
-                <p class="text-xs text-gray-500">${v.language} • ${v.gender || 'unknown'}</p>
-              </div>
-              <button class="select-voice text-[#008069] font-bold text-sm">Select</button>
-            </div>`;
-          card.querySelector(".select-voice").onclick = () => {
-            userData.voiceId = v.id;
-            userData.voiceName = v.name;
-            document.getElementById("selected-voice-name").textContent = v.name;
-            saveSession();
-            toggleVoiceBrowser(false);
-          };
-          grid.appendChild(card);
-        });
-    }
-
-    window.toggleDeleteModal = (show) => ui.delModal.classList.toggle("hidden", !show);
-
-    // =========================================================
-    // FIREBASE HANDLERS
-    // =========================================================
-    function bindFirebase(room) {
-      updateUserPresence();
-      
-      onChildAdded(ref(db, `chats/${room}/messages`), async (snap) => {
-        const msg = snap.val();
-        if (!msg || msg.senderId === myUserId) return;
-        
-        // Translate if needed
-        let displayText = msg.text;
-        if (msg.lang !== userData.language) {
-          displayText = await translate(msg.text, msg.lang, userData.language);
-        }
-        
-        renderBubble(msg, displayText);
-        
-        // TTS
-        if (ttsEnabled && msg.timestamp >= joinTimestamp) {
-          speak(displayText, msg.gender, msg.emotion, userData.language, userData.voiceId);
-        }
-      });
-
-      onValue(ref(db, `chats/${room}/drafts`), (snap) => {
-        document.querySelectorAll(".is-live").forEach(el => el.remove());
-        const drafts = snap.val();
-        if (!drafts) return;
-        Object.values(drafts).forEach(val => {
-          if (val && val.senderId !== myUserId) renderBubble(val, val.text, true);
-        });
-      });
-    }
-
-    function renderBubble(msg, displayText, isLive = false) {
-      const isMe = msg.senderId === myUserId;
-      const div = document.createElement("div");
-      div.className = `flex ${isMe ? "justify-end" : "justify-start"} ${isLive ? "is-live opacity-50" : "message-animate"}`;
-      
-      div.innerHTML = `
-        <div class="${isMe ? "bg-[#d9fdd3] rounded-tr-none" : "bg-white rounded-tl-none"} p-3 rounded-lg bubble-shadow max-w-[85%] flex items-end gap-2">
-          <div class="flex-1">
-            <p class="text-[14.5px] text-[#111b21] leading-tight">${escapeHtml(displayText)}</p>
-            <div class="flex items-center gap-1 mt-1">
-              <span class="text-[8px] text-gray-400 font-bold uppercase">
-                ${escapeHtml(msg.senderName)} • ${msg.lang}${msg.translated ? '→'+userData.language : ''}
-              </span>
+    <!-- DELETE ROOM MODAL -->
+    <div id="delete-modal" class="fixed inset-0 z-[110] bg-black/60 flex items-center justify-center p-6 hidden">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl animate-in fade-in zoom-in duration-200">
+            <h3 class="text-lg font-bold text-gray-800">Clear Succes Class Room?</h3>
+            <p class="text-sm text-gray-500 mt-2">Delete all messages for everyone? This is permanent.</p>
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="toggleDeleteModal(false)" class="px-4 py-2 text-sm font-semibold text-gray-400">Cancel</button>
+                <button id="confirm-delete-btn" class="px-4 py-2 text-sm font-semibold bg-red-500 text-white rounded-lg">Clear All</button>
             </div>
-          </div>
-          <div class="emotion-emoji">${msg.emoji || "😐"}</div>
-        </div>`;
-      ui.msgWin.appendChild(div);
-      ui.msgWin.scrollTop = ui.msgWin.scrollHeight;
-    }
+        </div>
+    </div>
 
-    function updateUserPresence() {
-      if (!userPresenceRef) userPresenceRef = ref(db, `presence/${userData.room}/${myUserId}`);
-      set(userPresenceRef, {
-        name: userData.name, gender: userData.gender, language: userData.language,
-        voice: userData.voiceName, lastSeen: Date.now(), online: true
-      });
-      onDisconnect(userPresenceRef).remove();
-    }
+    <!-- GATEWAY MODAL -->
+    <div id="gateway-modal" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div class="bg-[#008069] p-6 text-white text-center">
+                <h2 class="text-xl font-bold italic tracking-tight">Succes Class</h2>
+                <p class="text-xs opacity-80 mt-1 uppercase tracking-widest">Connect to SUCCESS</p>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Display Name</label>
+                    <input id="user-display-name" type="text" placeholder="Enter name" maxlength="20" class="w-full border-2 border-gray-100 rounded-xl px-4 py-2 focus:border-[#008069] outline-none">
+                </div>
 
-    // =========================================================
-    // STT (Deepgram)
-    // =========================================================
-    let aCtx = null;
-    async function startVoice() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
-        });
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Room Code</label>
+                    <input id="room-code" type="text" value="" placeholder="SUCCESS" class="w-full border-2 border-gray-100 rounded-xl px-4 py-2 text-center text-xl font-bold focus:border-[#008069] outline-none uppercase tracking-widest">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Gender</label>
+                        <select id="user-gender" class="w-full border-2 border-gray-100 rounded-lg px-3 py-2 outline-none focus:border-[#008069] bg-white text-sm">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Language</label>
+                        <select id="user-lang" class="w-full border-2 border-gray-100 rounded-lg px-3 py-2 outline-none focus:border-[#008069] bg-white text-sm">
+                            <!-- Populated -->
+                        </select>
+                    </div>
+                </div>
 
-        isRec = true;
-        ui.voiceOver.classList.remove("hidden");
-        setupViz(stream);
-        sttFullText = "";
+                <button id="btn-connect" class="w-full bg-[#00a884] text-white font-bold py-4 rounded-xl shadow-lg hover:bg-[#008069] transition-all uppercase tracking-widest mt-2">
+                    Enter Succes Class
+                </button>
+            </div>
+        </div>
+    </div>
 
-        tStart = Date.now();
-        tInt = setInterval(() => {
-          const s = Math.floor((Date.now() - tStart) / 1000);
-          ui.timer.innerText = `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
-        }, 1000);
-
-        const dgClient = createClient(DEEPGRAM_KEY);
-        dgSocket = dgClient.listen.live({
-          model: "nova-3", language: userData.language, smart_format: true,
-          punctuate: true, interim_results: true, vad_events: true,
-          endpointing: 900, utterance_end_ms: 1200
-        });
-
-        dgSocket.on(LiveTranscriptionEvents.Open, () => {
-          mediaRec = new MediaRecorder(stream, { mimeType: "audio/webm" });
-          mediaRec.ondataavailable = (e) => {
-            if (e.data.size > 0 && dgSocket?.getReadyState?.() === 1) dgSocket.send(e.data);
-          };
-          mediaRec.start(250);
-        });
-
-        dgSocket.on(LiveTranscriptionEvents.Transcript, (d) => {
-          const txt = (d?.channel?.alternatives?.[0]?.transcript || "").trim();
-          if (!txt) return;
-          if (d.is_final) {
-            pushSentenceMessage(txt);
-            sttFullText = (sttFullText ? sttFullText + " " + txt : txt).trim();
-          }
-        });
-
-      } catch (e) {
-        alert("Mic error: " + e.message);
-        stopVoice();
-      }
-    }
-
-    function stopVoice() {
-      if (!isRec) return;
-      isRec = false;
-      try { mediaRec?.stop(); dgSocket?.finish(); } catch {}
-      clearInterval(tInt);
-      ui.voiceOver.classList.add("hidden");
-      ui.timer.innerText = "00:00";
-    }
-
-    function setupViz(stream) {
-      if (!aCtx) aCtx = new AudioContext();
-      const an = aCtx.createAnalyser();
-      an.fftSize = 64;
-      const src = aCtx.createMediaStreamSource(stream);
-      src.connect(an);
-      const b = new Uint8Array(an.frequencyBinCount);
-      const ctx = ui.viz.getContext("2d");
-      ui.viz.width = ui.viz.offsetWidth;
-
-      const draw = () => {
-        if (!isRec) { src.disconnect(); return; }
-        requestAnimationFrame(draw);
-        an.getByteFrequencyData(b);
-        ctx.clearRect(0, 0, ui.viz.width, ui.viz.height);
-        const barWidth = (ui.viz.width / b.length) * 2;
-        let x = 0;
-        for (let i = 0; i < b.length; i++) {
-          const h = (b[i] / 255) * 30;
-          ctx.fillStyle = `rgb(0, ${100 + h}, 130)`;
-          ctx.fillRect(x, (30 - h) / 2, barWidth - 1, h);
-          x += barWidth;
-        }
-      };
-      draw();
-    }
-
-    function pushSentenceMessage(text) {
-      const t = cleanTranscript(text);
-      if (!t) return;
-      push(ref(db, `chats/${userData.room}/messages`), {
-        text: t, senderId: myUserId, senderName: userData.name,
-        gender: userData.gender, lang: userData.language,
-        voiceId: userData.voiceId, voiceName: userData.voiceName,
-        emotion: selectedEmotion, emoji: EMOTIONS[selectedEmotion],
-        timestamp: Date.now(), is_sentence: true
-      });
-    }
-
-    function pushTextMessage(text) {
-      const t = cleanTranscript(text);
-      if (!t) return;
-      push(ref(db, `chats/${userData.room}/messages`), {
-        text: t, senderId: myUserId, senderName: userData.name,
-        gender: userData.gender, lang: userData.language,
-        voiceId: userData.voiceId, voiceName: userData.voiceName,
-        emotion: selectedEmotion, emoji: EMOTIONS[selectedEmotion],
-        timestamp: Date.now(), is_sentence: false
-      });
-    }
-
-    // =========================================================
-    // MAIN FLOW
-    // =========================================================
-    function connect(isAuto) {
-      if (!isAuto) {
-        const n = document.getElementById("user-display-name").value.trim();
-        if (!n) return alert("Enter Name");
-        userData.name = n.substring(0, 8);
-        userData.room = document.getElementById("room-code").value.trim().toUpperCase() || "SUCCESS";
-        userData.gender = document.getElementById("user-gender").value;
-        userData.language = ui.langSelect.value;
+    <!-- MAIN APP -->
+    <div id="app-container" class="flex h-full w-full max-w-[1600px] bg-white overflow-hidden relative opacity-0 transition-opacity duration-500">
         
-        const v = ui.voiceSelect.value;
-        if (v && v !== "browse") {
-          userData.voiceId = (userData.language === "nl") ? FLEMISH_NL_VOICE_ID : v;
-          userData.voiceName = (userData.language === "nl") ? "Dutch Flemish" : "Custom";
+        <aside id="sidebar" class="w-[350px] border-r border-gray-200 bg-white flex flex-col shrink-0">
+            <div class="h-[64px] bg-[#008069] flex items-center justify-between px-4 text-white shrink-0">
+                <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-teal-900 flex items-center justify-center font-bold shadow-inner">SC</div></div>
+                <div class="flex gap-4 items-center opacity-70">
+                    <button id="logout-btn" title="Logout" class="hover:text-red-400 transition-colors"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </div>
+            </div>
+            <div id="chat-list" class="flex-1 overflow-y-auto">
+                <div class="flex items-center gap-3 p-3 bg-gray-100 border-b border-gray-100">
+                    <div id="sidebar-avatar" class="w-12 h-12 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg shrink-0">SU</div>
+                    <div class="flex-1 overflow-hidden">
+                        <h3 id="sidebar-room-name" class="font-semibold text-gray-800 text-sm">SUCCESS</h3>
+                        <p class="text-[12px] text-teal-600 font-medium animate-pulse italic truncate">Continuous Segmenting Active</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main id="chat-main" class="flex-1 flex flex-col bg-[#efeae2] relative shadow-2xl">
+            <header class="bg-[#f0f2f5] h-[64px] flex items-center justify-between px-4 border-b border-gray-200 shrink-0 z-20">
+                <div class="flex items-center gap-3">
+                    <button onclick="document.body.classList.remove('mobile-chat-open')" class="md:hidden text-gray-500 p-2 -ml-2"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div id="header-avatar" class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold shadow-sm">SU</div>
+                    <div>
+                        <h2 id="room-header-name" class="font-semibold text-gray-800 text-[15px] leading-tight">SUCCESS</h2>
+                        <span id="user-display-meta" class="text-[9px] text-gray-400 font-bold uppercase tracking-tight">Loading...</span>
+                    </div>
+                </div>
+                <div class="flex gap-5 items-center">
+                    <button onclick="toggleDeleteModal(true)" class="text-gray-400 hover:text-red-500 transition-colors p-2 text-lg"><i class="fa-solid fa-trash-can"></i></button>
+                    <button id="tts-toggle-btn" class="text-gray-400 hover:text-[#008069] transition-colors p-2 text-xl">
+                        <i id="tts-icon" class="fa-solid fa-volume-xmark"></i>
+                    </button>
+                    <i class="fa-solid fa-ellipsis-vertical text-gray-500"></i>
+                </div>
+            </header>
+
+            <div id="msg-stream" class="flex-1 overflow-y-auto p-4 md:p-8 chat-bg flex flex-col gap-3"></div>
+
+            <div class="bg-[#f0f2f5] p-2 md:p-3 flex items-center gap-2 border-t border-gray-200 relative z-40">
+                <div class="flex w-full items-center gap-3 bg-white rounded-full px-4 py-2 shadow-sm">
+                    <i class="fa-regular fa-face-smile text-gray-400 text-xl cursor-pointer"></i>
+                    <input id="text-input" type="text" placeholder="Type a message" class="flex-1 outline-none text-[15px] bg-transparent">
+                    <button id="send-btn" class="hidden text-teal-600 p-1"><i class="fa-solid fa-paper-plane text-xl"></i></button>
+                    <button id="mic-btn" class="text-gray-500 p-1"><i class="fa-solid fa-microphone text-xl"></i></button>
+                </div>
+
+                <div id="voice-overlay" class="absolute inset-0 bg-[#f0f2f5] z-50 flex items-center px-4 hidden">
+                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse mr-3"></div>
+                    <span id="timer" class="font-mono text-xs text-gray-500 w-10">00:00</span>
+                    <div class="flex-1 h-8 flex items-center overflow-hidden mx-2"><canvas id="viz" height="30" class="w-full"></canvas></div>
+                    <button id="cancel-voice" class="p-2 text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button>
+                    <button id="stop-voice" class="w-10 h-10 bg-[#00a884] text-white rounded-full flex items-center justify-center shadow-lg"><i class="fa-solid fa-check"></i></button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onChildAdded, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { createClient, LiveTranscriptionEvents } from 'https://cdn.jsdelivr.net/npm/@deepgram/sdk@3/+esm';
+
+        // --- CORE CONFIG ---
+        const CARTESIA_KEY = "sk_car_yWEX9Mp2LwKju8FXyosGhj";
+        const DEEPGRAM_KEY = '11ee938d032ce7c36c6fa82338274be5e4ada847';
+        const DEFAULT_VOICES = { "Male": "aa3fdf22-9f5e-4238-8016-31f515ded9a3", "Female": "cbaf8084-f009-4838-a096-07ee2e6612b1" };
+        const VOICE_MAP = {
+            "en": { "Male": "5ee9feff-1265-424a-9d7f-8e4d431a12c7", "Female": "e07c00bc-4134-4eae-9ea4-1a55fb45746b" },
+            "hi": { "Male": "7e8cb11d-37af-476b-ab8f-25da99b18644", "Female": "faf0731e-dfb9-4cfc-8119-259a79b27e12" },
+            "es": { "Male": "15d0c2e2-8d29-44c3-be23-d585d5f154a1", "Female": "5c5ad5e7-1020-476b-8b91-fdcbe9cc313c" },
+            "de": { "Male": "b7187e84-fe22-4344-ba4a-bc013fcb533e", "Female": "38aabb6a-f52b-4fb0-a3d1-988518f4dc06" },
+            "nl": { "Male": "aa3fdf22-9f5e-4238-8016-31f515ded9a3", "Female": "cbaf8084-f009-4838-a096-07ee2e6612b1" }
+        };
+
+        const firebaseConfig = { apiKey: "AIzaSyC93B2GgE3HzaWl5gW_mRroobQybaZNFJs", authDomain: "macx-5feca.firebaseapp.com", databaseURL: "https://macx-5feca-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "macx-5feca" };
+        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
+
+        const EMOTIONS = { "neutral": "😐", "angry": "😠", "excited": "🤩", "content": "😊", "sad": "😢", "scared": "😨", "happy": "😀", "curious": "🤔", "amazed": "😲" };
+        const fullLangList = ["Abkhaz","Acehnese","Acholi","Afar","Afrikaans","Albanian","Alur","Amharic","Arabic","Armenian","Assamese","Avar","Awadhi","Aymara","Azerbaijani","Balinese","Baluchi","Bambara","Baoulé","Bashkir","Basque","Batak Karo","Batak Simalungun","Batak Toba","Belarusian","Bemba","Bengali","Betawi","Bhojpuri","Bikol","Bosnian","Breton","Bulgarian","Buryat","Cantonese","Catalan","Cebuano","Chamorro","Chechen","Chichewa","Chinese (Simplified)","Chinese (Traditional)","Chuukese","Chuvash","Corsican","Crimean Tatar (Cyrillic)","Crimean Tatar (Latin)","Croatian","Czech","Danish","Dari","Dhivehi","Dinka","Dogri","Dombe","Dutch","Dyula","Dzongkha","English","Esperanto","Estonian","Ewe","Faroese","Fijian","Filipino","Finnish","Fon","French","French (Canada)","Frisian","Friulian","Fulani","Ga","Galician","Georgian","German","Greek","Guarani","Gujarati","Haitian Creole","Hakha Chin","Hausa","Hawaiian","Hebrew","Hiligaynon","Hindi","Hmong","Hungarian","Hunsrik","Iban","Icelandic","Igbo","Ilocano","Indonesian","Inuktut (Latin)","Inuktut (Syllabics)","Irish","Italian","Jamaican Patois","Japanese","Javanese","Jingpo","Kalaallisut","Kannada","Kanuri","Kapampangan","Kazakh","Khasi","Khmer","Kiga","Kikongo","Kinyarwanda","Kituba","Kokborok","Komi","Konkani","Korean","Krio","Kurdish (Kurmanji)","Kurdish (Sorani)","Kyrgyz","Lao","Latgalian","Latin","Latvian","Ligurian","Limburgish","Lingala","Lithuanian","Lombard","Luganda","Luo","Luxembourgish","Macedonian","Madurese","Maithili","Makassar","Malagasy","Malay","Malay (Jawi)","Malayalam","Maltese","Mam","Manx","Maori","Marathi","Marshallese","Marwadi","Mauritian Creole","Meadow Mari","Meiteilon (Manipuri)","Minang","Mizo","Mongolian","Myanmar (Burmese)","Nahuatl (Eastern Huasteca)","Ndau","Ndebele (South)","Nepalbhasa (Newari)","Nepali","NKo","Norwegian","Nuer","Occitan","Odia (Oriya)","Oromo","Ossetian","Pangasinan","Papiamento","Pashto","Persian","Polish","Portuguese (Brazil)","Portuguese (Portugal)","Punjabi (Gurmukhi)","Punjabi (Shahmukhi)","Quechua","Qʼeqchiʼ","Romani","Romanian","Rundi","Russian","Sami (North)","Samoan","Sango","Sanskrit","Santali (Latin)","Santali (Ol Chiki)","Scots Gaelic","Sepedi","Serbian","Sesotho","Seychellois Creole","Shan","Shona","Sicilian","Silesian","Sindhi","Sinhala","Slovak","Slovenian","Somali","Spanish","Sundanese","Susu","Swahili","Swati","Swedish","Tahitian","Tajik","Tamazight","Tamazight (Tifinagh)","Tamil","Tatar","Telugu","Tetum","Thai","Tibetan","Tigrinya","Tiv","Tok Pisin","Tongan","Tshiluba","Tsonga","Tswana","Tulu","Tumbuka","Turkish","Turkmen","Tuvan","Twi","Udmurt","Ukrainian","Urdu","Uyghur","Uzbek","Venda","Venetian","Vietnamese","Waray","Welsh","Wolof","Xhosa","Yakut","Yiddish","Yoruba","Yucatec Maya","Zapotec","Zulu"];
+
+        // --- SESSION STATE ---
+        let myUserId = `user-${Math.floor(Math.random()*99999)}`;
+        let userData = { name: '', room: 'SUCCESS', gender: 'Male', language: 'nl' };
+        let isRec = false, mediaRec, dgSocket, aCtx, aFr, tStart, tInt, activeSegmentRef = null;
+        let ttsEnabled = false, joinTimestamp = null, audioQueue = [], isAudioPlaying = false;
+
+        const ui = {
+            modal: document.getElementById('gateway-modal'), delModal: document.getElementById('delete-modal'), app: document.getElementById('app-container'), langSelect: document.getElementById('user-lang'), msgWin: document.getElementById('msg-stream'), txtIn: document.getElementById('text-input'), sendBtn: document.getElementById('send-btn'), micBtn: document.getElementById('mic-btn'), voiceOver: document.getElementById('voice-overlay'), timer: document.getElementById('timer'), viz: document.getElementById('viz'), ttsBtn: document.getElementById('tts-toggle-btn'), ttsIcon: document.getElementById('tts-icon'), logout: document.getElementById('logout-btn')
+        };
+
+        // --- SEQUENTIAL AUDIO QUEUE ---
+        async function processAudioQueue() {
+            if (isAudioPlaying || audioQueue.length === 0) return;
+            isAudioPlaying = true;
+            const item = audioQueue.shift();
+            try {
+                const pair = VOICE_MAP[item.lang] || DEFAULT_VOICES;
+                const vId = pair[item.gender] || DEFAULT_VOICES[item.gender];
+                const res = await fetch("https://api.cartesia.ai/tts/bytes", {
+                    method: "POST",
+                    headers: { "Cartesia-Version": "2025-04-16", "X-API-Key": CARTESIA_KEY, "Content-Type": "application/json" },
+                    body: JSON.stringify({ "model_id": "sonic-3-latest", "transcript": `<emotion value="${item.emotion || 'neutral'}" />${item.text}`, "voice": { "mode": "id", "id": vId }, "output_format": { "container": "wav", "encoding": "pcm_f32le", "sample_rate": 44100 }, "speed": "normal", "generation_config": { "speed": 1, "volume": 1, "emotion": item.emotion || "neutral" } })
+                });
+                if (res.ok) {
+                    const audio = new Audio(URL.createObjectURL(await res.blob()));
+                    audio.onended = () => { isAudioPlaying = false; processAudioQueue(); };
+                    await audio.play();
+                } else { isAudioPlaying = false; processAudioQueue(); }
+            } catch (e) { isAudioPlaying = false; processAudioQueue(); }
         }
-        
-        joinTimestamp = Date.now();
-        saveSession();
-      }
 
-      ui.modal.classList.add("hidden");
-      ui.app.classList.remove("opacity-0");
-      
-      document.getElementById("room-header-name").innerText = userData.room;
-      document.getElementById("sidebar-room-name").innerText = userData.room;
-      document.getElementById("sidebar-user-name").innerText = userData.name;
-      document.getElementById("selected-voice-name").textContent = userData.voiceName;
-      document.getElementById("connection-status").textContent = "Connected";
-      document.getElementById("user-display-meta").innerText = `${userData.name} • ${userData.gender} • ${userData.language.toUpperCase()}`;
-      
-      document.body.classList.add("mobile-chat-open");
-      bindFirebase(userData.room);
-    }
+        // --- FILLER CLEANING ---
+        function cleanTranscript(t) { return t.replace(/\b(uhm|um|ah|huh|er|eh|hm|uh)\b/gi, "").replace(/\s\s+/g, ' ').trim(); }
 
-    // Event Listeners
-    ui.ttsBtn.onclick = () => {
-      if (!audioInitialized) {
-        showTTSInitOverlay();
-        return;
-      }
-      ttsEnabled = !ttsEnabled;
-      updateTTSUI();
-      if (ttsEnabled) {
-        // Test speak to ensure it works
-        speakImmediate("Voice enabled");
-      } else {
-        audioQueue = []; // Clear queue when disabled
-        if (currentAudio) {
-          currentAudio.pause();
-          currentAudio.src = "";
+        async function translate(text, from, to) {
+            if (from === to) return text;
+            try {
+                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${from}&tl=${to}&dt=t&q=${encodeURI(text)}`);
+                const d = await res.json(); return d[0][0][0];
+            } catch (e) { return text; }
         }
-      }
-    };
 
-    ui.ttsInitBtn.onclick = () => {
-      initAudioContext();
-      ttsEnabled = true;
-      updateTTSUI();
-      hideTTSInitOverlay();
-      // Test sound
-      speakImmediate("Audio ready");
-    };
-
-    document.getElementById("btn-connect").onclick = () => connect(false);
-    document.getElementById("logout-btn").onclick = () => {
-      if (userPresenceRef) remove(userPresenceRef);
-      localStorage.removeItem(SESSION_KEY);
-      location.reload();
-    };
-
-    // Setup language dropdown
-    const langMap = {
-      Dutch: "nl", English: "en", Filipino: "tl", Tagalog: "tl", Spanish: "es", French: "fr",
-      German: "de", Arabic: "ar", Korean: "ko", Japanese: "ja", Portuguese: "pt", Hindi: "hi",
-      Tamil: "ta", Telugu: "te", Russian: "ru", Italian: "it", Chinese: "zh"
-    };
-    
-    ["Abkhaz","Acehnese","Acholi","Afar","Afrikaans","Albanian","Alur","Amharic","Arabic","Armenian","Assamese","Avar","Awadhi","Aymara","Azerbaijani","Balinese","Baluchi","Bambara","Baoulé","Bashkir","Basque","Batak Karo","Batak Simalungun","Batak Toba","Belarusian","Bemba","Bengali","Betawi","Bhojpuri","Bikol","Bosnian","Breton","Bulgarian","Buryat","Cantonese","Catalan","Cebuano","Chamorro","Chechen","Chichewa","Chinese (Simplified)","Chinese (Traditional)","Chuukese","Chuvash","Corsican","Crimean Tatar (Cyrillic)","Crimean Tatar (Latin)","Croatian","Czech","Danish","Dari","Dhivehi","Dinka","Dogri","Dombe","Dutch","Dyula","Dzongkha","English","Esperanto","Estonian","Ewe","Faroese","Fijian","Filipino","Finnish","Fon","French","French (Canada)","Frisian","Friulian","Fulani","Ga","Galician","Georgian","German","Greek","Guarani","Gujarati","Haitian Creole","Hakha Chin","Hausa","Hawaiian","Hebrew","Hiligaynon","Hindi","Hmong","Hungarian","Hunsrik","Iban","Icelandic","Igbo","Ilocano","Indonesian","Inuktut (Latin)","Inuktut (Syllabics)","Irish","Italian","Jamaican Patois","Japanese","Javanese","Jingpo","Kalaallisut","Kannada","Kanuri","Kapampangan","Kazakh","Khasi","Khmer","Kiga","Kikongo","Kinyarwanda","Kituba","Kokborok","Komi","Konkani","Korean","Krio","Kurdish (Kurmanji)","Kurdish (Sorani)","Kyrgyz","Lao","Latgalian","Latin","Latvian","Ligurian","Limburgish","Lingala","Lithuanian","Lombard","Luganda","Luo","Luxembourgish","Macedonian","Madurese","Maithili","Makassar","Malagasy","Malay","Malay (Jawi)","Malayalam","Maltese","Mam","Manx","Maori","Marathi","Marshallese","Marwadi","Mauritian Creole","Meadow Mari","Meiteilon (Manipuri)","Minang","Mizo","Mongolian","Myanmar (Burmese)","Nahuatl (Eastern Huasteca)","Ndau","Ndebele (South)","Nepalbhasa (Newari)","Nepali","NKo","Norwegian","Nuer","Occitan","Odia (Oriya)","Oromo","Ossetian","Pangasinan","Papiamento","Pashto","Persian","Polish","Portuguese (Brazil)","Portuguese (Portugal)","Punjabi (Gurmukhi)","Punjabi (Shahmukhi)","Quechua","Qʼeqchiʼ","Romani","Romanian","Rundi","Russian","Sami (North)","Samoan","Sango","Sanskrit","Santali (Latin)","Santali (Ol Chiki)","Scots Gaelic","Sepedi","Serbian","Sesotho","Seychellois Creole","Shan","Shona","Sicilian","Silesian","Sindhi","Sinhala","Slovak","Slovenian","Somali","Spanish","Sundanese","Susu","Swahili","Swati","Swedish","Tahitian","Tajik","Tamazight","Tamazight (Tifinagh)","Tamil","Tatar","Telugu","Tetum","Thai","Tibetan","Tigrinya","Tiv","Tok Pisin","Tongan","Tshiluba","Tsonga","Tswana","Tulu","Tumbuka","Turklish","Turkmen","Tuvan","Twi","Udmurt","Ukrainian","Urdu","Uyghur","Uzbek","Venda","Venetian","Vietnamese","Waray","Welsh","Wolof","Xhosa","Yakut","Yiddish","Yoruba","Yucatec Maya","Zapotec","Zulu"].forEach(label => {
-      const opt = document.createElement("option");
-      opt.value = langMap[label] || "en";
-      opt.textContent = label === "Dutch" ? "Dutch Flemish" : label;
-      if (label === "Dutch") opt.selected = true;
-      ui.langSelect.appendChild(opt);
-    });
-
-    ui.langSelect.onchange = () => updateVoiceSelectOptions(ui.langSelect.value, document.getElementById("user-gender").value);
-    document.getElementById("user-gender").onchange = () => updateVoiceSelectOptions(ui.langSelect.value, document.getElementById("user-gender").value);
-    ui.voiceSelect.onchange = (e) => { if (e.target.value === "browse") toggleVoiceBrowser(true); };
-
-    ui.txtIn.oninput = () => {
-      const v = ui.txtIn.value.trim();
-      ui.sendBtn.classList.toggle("hidden", !v);
-      ui.micBtn.classList.toggle("hidden", !!v);
-    };
-
-    ui.txtIn.onkeypress = (e) => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        if (ui.txtIn.value.trim()) {
-          pushTextMessage(ui.txtIn.value.trim());
-          ui.txtIn.value = "";
-          ui.txtIn.oninput();
+        // --- FIREBASE SYNC ---
+        function pushMsg(raw, isFinal = true) {
+            const text = cleanTranscript(raw); if (!text) return;
+            const emotion = "content"; // Default synthesis for demo
+            const path = isFinal ? `chats/${userData.room}/messages` : `chats/${userData.room}/drafts`;
+            const tRef = isFinal ? push(ref(db, path)) : (activeSegmentRef || push(ref(db, path)));
+            if (!isFinal) activeSegmentRef = tRef;
+            set(tRef, { text, senderId: myUserId, senderName: userData.name, gender: userData.gender, lang: userData.language, emotion, emoji: EMOTIONS[emotion] || '😐', timestamp: Date.now() });
+            if (isFinal && activeSegmentRef) { remove(activeSegmentRef); activeSegmentRef = null; }
         }
-      }
-    };
 
-    document.getElementById("send-btn").onclick = () => {
-      if (ui.txtIn.value.trim()) {
-        pushTextMessage(ui.txtIn.value.trim());
-        ui.txtIn.value = "";
-        ui.txtIn.oninput();
-      }
-    };
+        function bindFirebase(room) {
+            ui.msgWin.innerHTML = '';
+            onChildAdded(ref(db, `chats/${room}/messages`), async (snap) => {
+                const msg = snap.val();
+                if (msg.senderId !== myUserId && msg.timestamp >= joinTimestamp) {
+                    msg.translated = await translate(msg.text, msg.lang, userData.language);
+                    audioQueue.push({ text: msg.translated, gender: msg.gender, emotion: msg.emotion, lang: userData.language });
+                    if(ttsEnabled) processAudioQueue();
+                }
+                renderBubble(msg);
+            });
+            onValue(ref(db, `chats/${room}/drafts`), (snap) => {
+                document.querySelectorAll('.is-live').forEach(el => el.remove());
+                if (snap.val()) Object.entries(snap.val()).forEach(([key, val]) => renderBubble(val, true));
+            });
+        }
 
-    ui.micBtn.onclick = () => {
-      // Ensure audio context is ready for recording feedback
-      initAudioContext();
-      startVoice();
-    };
-    document.getElementById("stop-voice").onclick = stopVoice;
-    document.getElementById("cancel-voice").onclick = stopVoice;
+        function renderBubble(msg, isLive = false) {
+            const isMe = msg.senderId === myUserId;
+            const div = document.createElement('div');
+            div.className = `flex ${isMe ? 'justify-end' : 'justify-start'} ${isLive ? 'is-live opacity-50' : ''}`;
+            const display = (!isMe && msg.translated) ? msg.translated : msg.text;
+            div.innerHTML = `<div class="${isMe ? 'bg-[#d9fdd3] rounded-tr-none' : 'bg-white rounded-tl-none'} p-2 rounded-lg bubble-shadow max-w-[85%] flex items-end gap-2"><div class="flex-1"><p class="text-[14.5px] text-[#111b21] leading-tight pr-1 pb-1">${display}</p><div class="flex items-center gap-1"><span class="text-[8px] text-gray-400 font-bold uppercase tracking-tighter">${msg.senderName} • ${msg.gender} • ${msg.lang}</span></div></div><div class="emotion-emoji shrink-0">${msg.emoji || '😐'}</div></div>`;
+            ui.msgWin.appendChild(div); ui.msgWin.scrollTop = ui.msgWin.scrollHeight;
+        }
 
-    document.getElementById("emotion-btn").onclick = (e) => {
-      e.stopPropagation();
-      ui.emotionPicker.classList.toggle("hidden");
-    };
+        // --- ROBUST CONTINUOUS DEEPGRAM ---
+        async function startVoice() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                isRec = true; ui.voiceOver.classList.remove('hidden'); setupViz(stream);
+                tStart = Date.now();
+                tInt = setInterval(() => { const s = Math.floor((Date.now() - tStart)/1000); ui.timer.innerText = `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }, 1000);
+                const dgClient = createClient(DEEPGRAM_KEY);
+                dgSocket = dgClient.listen.live({ model: "nova-3", language: userData.language, smart_format: true, interim_results: true, endpointing: 1000, punctuate: true });
+                dgSocket.on(LiveTranscriptionEvents.Open, () => {
+                    mediaRec = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                    mediaRec.ondataavailable = (e) => { if (e.data.size > 0 && dgSocket.getReadyState() === 1) dgSocket.send(e.data); };
+                    mediaRec.start(250);
+                });
+                dgSocket.on(LiveTranscriptionEvents.Transcript, (d) => { const txt = d.channel.alternatives[0].transcript; if (txt.trim()) pushMsg(txt, d.is_final); });
+            } catch (e) { stopVoice(false); }
+        }
 
-    document.querySelectorAll(".emotion-option").forEach(btn => {
-      btn.onclick = (e) => {
-        selectedEmotion = e.currentTarget.dataset.emotion;
-        ui.emotionPicker.classList.add("hidden");
-      };
-    });
+        function stopVoice(save) {
+            isRec = false; mediaRec?.stop(); dgSocket?.finish(); clearInterval(tInt); ui.voiceOver.classList.add('hidden'); ui.timer.innerText = "00:00";
+            if (!save && activeSegmentRef) { remove(activeSegmentRef); activeSegmentRef = null; }
+        }
 
-    document.getElementById("confirm-delete-btn").onclick = () => {
-      remove(ref(db, `chats/${userData.room}`));
-      toggleDeleteModal(false);
-      ui.msgWin.innerHTML = "";
-    };
+        // --- APP FLOW ---
+        function connect(isAuto) {
+            if(!isAuto) {
+                const n = document.getElementById('user-display-name').value.trim();
+                const r = document.getElementById('room-code').value.trim().toUpperCase();
+                if(!n) return alert("Display Name Required");
+                userData.name = n.substring(0,8); userData.room = r || 'SUCCESS';
+                userData.gender = document.getElementById('user-gender').value;
+                userData.language = ui.langSelect.value;
+                joinTimestamp = Date.now(); localStorage.setItem('orbit_session', JSON.stringify({ ...userData, joinTime: joinTimestamp }));
+            }
+            ui.modal.classList.add('hidden'); ui.app.classList.remove('opacity-0');
+            document.getElementById('room-header-name').innerText = userData.room;
+            document.getElementById('sidebar-room-name').innerText = userData.room;
+            document.getElementById('user-display-meta').innerText = `${userData.name} • ${userData.gender} • ${userData.language.toUpperCase()}`;
+            document.body.classList.add('mobile-chat-open'); bindFirebase(userData.room);
+        }
 
-    document.addEventListener("click", (e) => {
-      if (!ui.emotionPicker.contains(e.target) && e.target.id !== "emotion-btn") {
-        ui.emotionPicker.classList.add("hidden");
-      }
-    });
+        function setupViz(s) {
+            const vCtx = new AudioContext(); const aAn = vCtx.createAnalyser(); aAn.fftSize = 64; vCtx.createMediaStreamSource(s).connect(aAn);
+            const b = new Uint8Array(aAn.frequencyBinCount), ctx = ui.viz.getContext('2d'); ui.viz.width = ui.viz.parentElement.offsetWidth;
+            const dr = () => { if(!isRec) return vCtx.close(); requestAnimationFrame(dr); aAn.getByteFrequencyData(b); ctx.clearRect(0,0,ui.viz.width,ui.viz.height);
+                let x = 0; for(let i=0; i<b.length; i++) { const h = (b[i]/255)*30; ctx.fillStyle='#00a884'; ctx.beginPath(); ctx.roundRect(x,(30-h)/2,2,h,10); ctx.fill(); x += 5; }
+            }; dr();
+        }
 
-    document.addEventListener("visibilitychange", () => {
-      if (!userData.room) return;
-      const p = ref(db, `presence/${userData.room}/${myUserId}`);
-      if (document.hidden) update(p, { lastSeen: Date.now(), online: false });
-      else updateUserPresence();
-    });
+        fullLangList.forEach(l => {
+            const opt = document.createElement('option');
+            const map = { "Dutch": "nl", "Tagalog": "tl", "English": "en", "Spanish": "es", "French": "fr", "German": "de", "Arabic": "ar", "Korean": "ko", "Japanese": "ja", "Portuguese": "pt", "Tamil": "ta", "Telugu": "te", "Hindi": "hi" };
+            opt.value = map[l] || "en"; opt.text = l; if(l === "Dutch") opt.selected = true; ui.langSelect.add(opt);
+        });
 
-    // BOOT
-    await loadCartesiaVoices();
-    updateVoiceSelectOptions(ui.langSelect.value, document.getElementById("user-gender").value);
+        window.toggleDeleteModal = (show) => ui.delModal.classList.toggle('hidden', !show);
+        document.getElementById('confirm-delete-btn').onclick = () => { remove(ref(db, `chats/${userData.room}`)); toggleDeleteModal(false); ui.msgWin.innerHTML = ''; };
+        ui.logout.onclick = () => { localStorage.removeItem('orbit_session'); location.reload(); };
+        document.getElementById('btn-connect').onclick = () => connect(false);
+        ui.ttsBtn.onclick = () => { ttsEnabled = !ttsEnabled; ui.ttsIcon.className = ttsEnabled ? "fa-solid fa-volume-high text-[#008069]" : "fa-solid fa-volume-xmark text-gray-400"; if(ttsEnabled) processAudioQueue(); };
+        ui.txtIn.oninput = () => { const v = ui.txtIn.value.trim(); ui.sendBtn.classList.toggle('hidden', v===""); ui.micBtn.classList.toggle('hidden', v!==""); };
+        ui.sendBtn.onclick = () => { if(ui.txtIn.value.trim()){ pushMsg(ui.txtIn.value.trim(), true); ui.txtIn.value=''; ui.txtIn.oninput(); } };
+        ui.micBtn.onclick = startVoice;
+        document.getElementById('stop-voice').onclick = () => stopVoice(true);
+        document.getElementById('cancel-voice').onclick = () => stopVoice(false);
 
-    const saved = localStorage.getItem(SESSION_KEY);
-    if (saved) {
-      try {
-        const d = JSON.parse(saved);
-        userData = { ...userData, ...d };
-        joinTimestamp = d.joinTime || Date.now();
-        connect(true);
-      } catch {}
-    }
-  </script>
+        const saved = localStorage.getItem('orbit_session');
+        if(saved) { const d = JSON.parse(saved); userData = d; joinTimestamp = d.joinTime; connect(true); }
+    </script>
 </body>
 </html>
